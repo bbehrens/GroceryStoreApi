@@ -1,9 +1,11 @@
 ﻿using GroceryStoreApi.Domain.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace GroceryStoreApi.Domain.Persistence
 {
-    public class CustomerRepository : ICustomerRepository
+    public class CustomerJsonFileRepository : ICustomerRepository
     {
         static IList<Customer> DATABASE;
         static object lockObject = new object();
@@ -16,6 +18,29 @@ namespace GroceryStoreApi.Domain.Persistence
                     dynamic database = JObject.Parse(file);
                     JArray customers = database.customers;
                     DATABASE = customers.Select(x=> new Customer(){Id = (int)x["id"], Name = (string)x["name"]}).ToList<Customer>();       
+                }
+            }
+        }
+
+        public void Persist(string fileName)
+        {
+            lock(lockObject)
+            {
+                if(DATABASE !=null)
+                {
+                    var customers = JsonConvert.SerializeObject(GetAll(), 
+                    new JsonSerializerSettings()
+                    {
+                        ContractResolver = new DefaultContractResolver{
+                            NamingStrategy = new CamelCaseNamingStrategy()
+
+                        },
+                        Formatting = Formatting.Indented,
+                    });
+            customers = "{customers: " + customers + "}";
+            var foo = JsonConvert.DeserializeObject(customers);
+            var final = JsonConvert.SerializeObject(foo, new JsonSerializerSettings(){Formatting=Formatting.Indented});
+            File.WriteAllText(fileName, final);                
                 }
             }
         }

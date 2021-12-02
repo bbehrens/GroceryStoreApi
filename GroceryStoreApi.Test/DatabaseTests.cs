@@ -13,8 +13,8 @@ namespace GroceryStoreApi.Test
         [Fact]
         public void LoadTheDatabase()
         {
-            CustomerRepository.Load("database.json");
-            var repo = new CustomerRepository();
+            CustomerJsonFileRepository.Load("database.json");
+            var repo = new CustomerJsonFileRepository();
             var customerObjects = repo.GetAll();
             Assert.Equal(3, customerObjects.Length);
         }
@@ -22,24 +22,24 @@ namespace GroceryStoreApi.Test
         [Fact]
         public void ShouldHaveACustomerNamedBob()
         {
-            CustomerRepository.Load("database.json");
-            var repo = new CustomerRepository();            
+            CustomerJsonFileRepository.Load("database.json");
+            var repo = new CustomerJsonFileRepository();            
             Assert.Equal(1, repo.Query(x=> x.Name == "Bob").Count);
         }
 
         [Fact]
         public void ShouldNotHaveACustomerNamedBrandon()
         {
-            CustomerRepository.Load("database.json");
-            var repo = new CustomerRepository();            
+            CustomerJsonFileRepository.Load("database.json");
+            var repo = new CustomerJsonFileRepository();            
             Assert.Equal(0, repo.Query(x => x.Name == "Brandon").Count);
         }
 
         [Fact]
         public void ShouldDeleteAnItem()
         {
-            CustomerRepository.Load("database.json");
-            var repo = new CustomerRepository();     
+            CustomerJsonFileRepository.Load("database.json");
+            var repo = new CustomerJsonFileRepository();     
             var bob = repo.Find(1);
             Assert.NotNull(bob);
             repo.Delete(bob);
@@ -50,8 +50,8 @@ namespace GroceryStoreApi.Test
         [Fact]
         public void ShouldUpdateAnItem()
         {
-            CustomerRepository.Load("database.json");
-            var repo = new CustomerRepository();     
+            CustomerJsonFileRepository.Load("database.json");
+            var repo = new CustomerJsonFileRepository();     
             var bob = repo.Find(1);
             Assert.NotNull(bob);
             Assert.Equal("Bob", bob.Name);
@@ -69,8 +69,8 @@ namespace GroceryStoreApi.Test
         [Fact]
         public void ShouldAddAnItem()
         {
-            CustomerRepository.Load("database.json");
-            var repo = new CustomerRepository();     
+            CustomerJsonFileRepository.Load("database.json");
+            var repo = new CustomerJsonFileRepository();     
             var bob = repo.Find(4);
             Assert.Null(bob);
             
@@ -86,22 +86,10 @@ namespace GroceryStoreApi.Test
         [Fact]
         public void Persist()
         {
-            CustomerRepository.Load("database.json");
-            var repo = new CustomerRepository();       
+            CustomerJsonFileRepository.Load("database.json");
+            var repo = new CustomerJsonFileRepository();       
             repo.Insert(new Customer(){Id = 4, Name = "Brandon"});
-            var customers = JsonConvert.SerializeObject(repo.GetAll(), 
-                    new JsonSerializerSettings()
-                    {
-                        ContractResolver = new DefaultContractResolver{
-                            NamingStrategy = new CamelCaseNamingStrategy()
-
-                        },
-                        Formatting = Formatting.Indented,
-                    });
-            customers = "{customers: " + customers + "}";
-            var foo = JsonConvert.DeserializeObject(customers);
-            var final = JsonConvert.SerializeObject(foo, new JsonSerializerSettings(){Formatting=Formatting.Indented});
-            File.WriteAllText("database1.json", final);                
+            repo.Persist("database1.json");
         }
     }
 }
