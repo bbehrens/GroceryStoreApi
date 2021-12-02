@@ -1,22 +1,20 @@
-﻿using GroceryStoreApi.Domain.Model;
-using GroceryStoreApi.Domain.Persistence;
-using GroceryStoreAPI.Controllers.Customers;
+﻿using GroceryStoreApi.Domain.Persistence;
 using GroceryStoreAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GroceryStoreAPI.Controllers
+namespace GroceryStoreAPI.Controllers.v1.Customers
 {
-    
+
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        IRepository _repository;
+        ICustomerRepository _repository;
         private ICustomerService _customerService;
 
-        public CustomersController(IRepository repository, ICustomerService customerService)
+        public CustomersController(ICustomerRepository repository, ICustomerService customerService)
         {
             _repository = repository;
             _customerService = customerService;
@@ -25,14 +23,14 @@ namespace GroceryStoreAPI.Controllers
         [HttpGet, Route("customers")]
         public async Task<ActionResult<IEnumerable<CustomerViewModel>>> List()
         {
-            var customers = await Task.FromResult(_repository.GetAll<Customer>());
+            var customers = await Task.FromResult(_repository.GetAll());
             return Ok(customers.Select(x=> new CustomerViewModel(x)));
         }
 
-        [HttpGet, Route("customers/{id:int}")]
+        [HttpGet, Route("customers/{id:int}") ]
         public async Task<ActionResult<CustomerViewModel>> Get([FromRoute]int id)
         {
-            var customer = await Task.FromResult(_repository.Find<Customer>(id));
+            var customer = await Task.FromResult(_repository.Find(id));
             return Ok(new CustomerViewModel(customer));
         }
 
@@ -40,9 +38,11 @@ namespace GroceryStoreAPI.Controllers
         public async Task<ActionResult<CustomerViewModel>> Create([FromBody]CreateCustomerRequest request)
         {
             var customer = await Task.FromResult(_customerService.Create(request));
-            return Ok(new CustomerViewModel(customer));
+            return  Created($"~customers/{customer.Id}", new CustomerViewModel(customer));
         }
-
+                
+        /// <response code="200">Customer Modified Successfully</response>
+        /// <response code="404">Customer Not Found</response>           
         [HttpPut, Route("customers")]
         public async Task<ActionResult<CustomerViewModel>> Edit([FromBody]EditCustomerRequest request)
         {
@@ -50,11 +50,13 @@ namespace GroceryStoreAPI.Controllers
             return Ok(new CustomerViewModel(customer));
         }
 
+        /// <response code="204">Customer Deleted Successfully</response>
+        /// <response code="404">Customer Not Found</response>                        
         [HttpDelete, Route("customers/{id:int}")]
-        public async Task<ActionResult<CustomerViewModel>> Delete([FromRoute]int id)
+        public async void Delete([FromRoute]int id)
         {
             await Task.Run(() => _customerService.Delete(id));
-            return NoContent();
+            NoContent();
         }
     }
 }

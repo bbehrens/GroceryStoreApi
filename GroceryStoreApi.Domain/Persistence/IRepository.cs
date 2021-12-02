@@ -3,17 +3,16 @@ using System.Linq.Expressions;
 
 namespace GroceryStoreApi.Domain.Persistence
 {
-    public interface IRepository
+    public interface ICustomerRepository
     {
-        T Find<T>(int id) where T : class, IEntity;
-
-        IQueryable<T> Query<T>();
-        IQueryable<T> Query<T>(Expression<Func<T, bool>> where);
+        Customer Find(int id);
         
-        void Delete(object target);
-        void Save(object target);
-        void Insert(object target);
+        IList<Customer> Query(Func<Customer, bool> where);
+        
+        void Delete(Customer target);
+        void Save(Customer target);
+        void Insert(Customer target);
 
-        T[] GetAll<T>();
+        Customer[] GetAll();
     }
 }

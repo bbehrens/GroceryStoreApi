@@ -1,7 +1,7 @@
 ﻿using GroceryStoreApi.Domain.Model;
 using GroceryStoreApi.Domain.Persistence;
 
-namespace GroceryStoreAPI.Controllers.Customers
+namespace GroceryStoreAPI.Controllers.v1.Customers
 {
     public interface ICustomerService
     {
@@ -11,9 +11,9 @@ namespace GroceryStoreAPI.Controllers.Customers
     }
     public class CustomerService : ICustomerService
     {
-        private IRepository _repository;
+        private ICustomerRepository _repository;
 
-        public CustomerService(IRepository repository)
+        public CustomerService(ICustomerRepository repository)
         {
             _repository = repository;
         }

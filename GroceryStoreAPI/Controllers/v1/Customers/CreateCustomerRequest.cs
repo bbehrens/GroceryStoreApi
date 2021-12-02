@@ -1,4 +1,4 @@
-﻿namespace GroceryStoreAPI.Controllers.Customers
+﻿namespace GroceryStoreAPI.Controllers.v1.Customers
 {
     public class CreateCustomerRequest
     {
