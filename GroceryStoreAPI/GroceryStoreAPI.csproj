@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <StartupObject>GroceryStoreAPI.Program</StartupObject>
-	<Nullable>enable</Nullable>
+	<Nullable>enable</Nullable>    
   </PropertyGroup>
 
   <ItemGroup>

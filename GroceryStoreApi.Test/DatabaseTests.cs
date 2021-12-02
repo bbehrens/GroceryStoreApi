@@ -1,8 +1,9 @@
 using GroceryStoreApi.Domain.Model;
 using GroceryStoreApi.Domain.Persistence;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using System.IO;
-using System.Linq;
 using Xunit;
 
 namespace GroceryStoreApi.Test
@@ -63,6 +64,44 @@ namespace GroceryStoreApi.Test
             Assert.Equal(1, newDude.Id);
 
             Assert.Empty(repo.Query(x=> x.Name == "Bob"));                        
+        }
+
+        [Fact]
+        public void ShouldAddAnItem()
+        {
+            CustomerRepository.Load("database.json");
+            var repo = new CustomerRepository();     
+            var bob = repo.Find(4);
+            Assert.Null(bob);
+            
+            var brandon = new Customer() {Name = "brandon"};
+            repo.Insert(brandon);
+
+            brandon = repo.Find(4);
+            Assert.NotNull(brandon);
+            Assert.Equal("brandon", brandon.Name);
+            Assert.Equal(4, brandon.Id);           
+        }
+
+        [Fact]
+        public void Persist()
+        {
+            CustomerRepository.Load("database.json");
+            var repo = new CustomerRepository();       
+            repo.Insert(new Customer(){Id = 4, Name = "Brandon"});
+            var customers = JsonConvert.SerializeObject(repo.GetAll(), 
+                    new JsonSerializerSettings()
+                    {
+                        ContractResolver = new DefaultContractResolver{
+                            NamingStrategy = new CamelCaseNamingStrategy()
+
+                        },
+                        Formatting = Formatting.Indented,
+                    });
+            customers = "{customers: " + customers + "}";
+            var foo = JsonConvert.DeserializeObject(customers);
+            var final = JsonConvert.SerializeObject(foo, new JsonSerializerSettings(){Formatting=Formatting.Indented});
+            File.WriteAllText("database1.json", final);                
         }
     }
 }
